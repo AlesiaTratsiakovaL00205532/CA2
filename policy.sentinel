@@ -1,16 +1,55 @@
+import "tfconfig/v2" as tfconfig
 import "tfplan/v2" as tfplan
 
-s3_buckets = filter tfplan.resource_changes as _, rc {
-    rc.type is "aws_s3_bucket" and
-    (rc.change.actions contains "create" or rc.change.actions is ["update"])
+# "eu-west-1" is not available in AWS Sandbox,
+# so "us-east-1" was used for development.
+# In production it would be replaced with "eu-west-1".
+approved_regions = ["us-east-1"]
+
+region_allowed = func(expression, module_address) {
+	if expression is null {
+		return false
+	}
+
+	constant = expression.constant_value else null
+	if constant is not null {
+		return constant in approved_regions
+	}
+
+	references = expression.references else []
+	if module_address is "" and references is ["var.region"] {
+		region = tfplan.variables.region.value else null
+		return region in approved_regions
+	}
+
+	return false
 }
 
-bucket_tags = rule {
-    all s3_buckets as _, instances {
-        instances.change.after.tags is not null
-    }
+aws_providers = filter tfconfig.providers as _, provider {
+	provider.full_name is "registry.terraform.io/hashicorp/aws"
+}
+
+providers_allowed = rule {
+	length(aws_providers) > 0 and
+	all aws_providers as _, provider {
+		region_allowed(
+			provider.config.region else null,
+			provider.module_address,
+		)
+	}
+}
+
+aws_resources = filter tfconfig.resources as _, resource {
+	resource.provider_config_key in keys(aws_providers)
+}
+
+resource_regions_allowed = rule {
+	all aws_resources as _, resource {
+		(resource.config.region else null) is null or
+			region_allowed(resource.config.region, resource.module_address)
+	}
 }
 
 main = rule {
-    bucket_tags
+	providers_allowed and resource_regions_allowed
 }
