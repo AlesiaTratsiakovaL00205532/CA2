@@ -1,0 +1,99 @@
+import "tfconfig/v2" as tfconfig
+import "tfplan/v2" as tfplan
+
+# Sandbox exception; production must use eu-west-1.
+approved_regions = ["us-east-1"]
+storage_types = ["aws_s3_bucket", "aws_ebs_volume", "aws_instance",
+	"aws_ebs_snapshot", "aws_ebs_snapshot_copy"]
+
+region_allowed = func(expression, module_address) {
+	if expression is null {
+		return false
+	}
+
+	constant = expression.constant_value else null
+	if constant is not null {
+		return constant in approved_regions
+	}
+
+	references = expression.references else []
+	if module_address is "" and references is ["var.region"] {
+		return (tfplan.variables.region.value else null) in approved_regions
+	}
+
+	return false
+}
+
+zone_allowed = func(zone) {
+	return any approved_regions as region {
+		zone matches ("^" + region + "[a-z]$")
+	}
+}
+
+storage_allowed = func(resource) {
+	provider = tfconfig.providers[resource.provider_config_key] else null
+	if provider is null {
+		return false
+	}
+	if provider.full_name is not "registry.terraform.io/hashicorp/aws" {
+		return false
+	}
+
+	override = resource.config.region else null
+	if override is not null {
+		if not region_allowed(override, resource.module_address) {
+			return false
+		}
+	} else {
+		if not region_allowed(provider.config.region else null, provider.module_address) {
+			return false
+		}
+	}
+
+	zone_expression = resource.config.availability_zone else null
+	if zone_expression is not null {
+		zone = zone_expression.constant_value else null
+		if zone is null {
+			return false
+		}
+		return zone_allowed(zone)
+	}
+
+	return true
+}
+
+storage_resources = filter tfconfig.resources as _, resource {
+	resource.mode is "managed" and resource.type in storage_types
+}
+
+storage_locations_allowed = rule {
+	length(storage_resources) > 0 and
+	all storage_resources as _, resource {
+		storage_allowed(resource)
+	}
+}
+
+storage_changes = filter (tfplan.resource_changes else {}) as _, resource {
+	resource.mode is "managed" and
+		resource.type in storage_types and
+		resource.change.actions is not ["delete"]
+}
+
+planned_storage_allowed = func(resource) {
+	region = resource.change.after.region else null
+	bucket_region = resource.change.after.bucket_region else null
+	zone = resource.change.after.availability_zone else null
+	return (region is null or region in approved_regions) and
+		(bucket_region is null or bucket_region in approved_regions) and
+		(zone is null or zone_allowed(zone))
+}
+
+planned_storage_locations_allowed = rule {
+	all storage_changes as _, resource {
+		planned_storage_allowed(resource)
+	}
+}
+
+main = rule {
+	storage_locations_allowed and planned_storage_locations_allowed
+}

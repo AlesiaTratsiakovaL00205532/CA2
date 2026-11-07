@@ -1,0 +1,132 @@
+import "tfconfig/v2" as tfconfig
+import "tfplan/v2" as tfplan
+import "strings"
+
+# Sandbox exception; production must use eu-west-1.
+approved_regions = ["us-east-1"]
+
+region_allowed = func(expression, module_address) {
+	if expression is null {
+		return false
+	}
+	constant = expression.constant_value else null
+	if constant is not null {
+		return constant in approved_regions
+	}
+	if module_address is "" and (expression.references else []) is ["var.region"] {
+		return (tfplan.variables.region.value else null) in approved_regions
+	}
+	return false
+}
+
+resource_region_allowed = func(change) {
+	resource = tfconfig.resources[tfconfig.strip_index(change.address)] else null
+	if resource is null {
+		return false
+	}
+	provider = tfconfig.providers[resource.provider_config_key] else null
+	if provider is null or provider.full_name is not "registry.terraform.io/hashicorp/aws" {
+		return false
+	}
+	expression = resource.config.region else null
+	module_address = resource.module_address
+	if expression is null {
+		expression = provider.config.region else null
+		module_address = provider.module_address
+	}
+	planned_region = change.change.after.region else null
+	return region_allowed(expression, module_address) and
+		(planned_region is null or planned_region in approved_regions)
+}
+
+changes = filter tfplan.resource_changes as _, resource {
+	resource.mode is "managed" and
+		resource.provider_name is "registry.terraform.io/hashicorp/aws" and
+		resource.change.actions is not ["delete"]
+}
+
+destination_buckets = filter changes as _, resource {
+	resource.type is "aws_s3_bucket"
+}
+
+s3_destination_allowed = func(arn) {
+	if arn is null {
+		return false
+	}
+	# S3 bucket ARNs have no region; locate the managed destination instead.
+	return any destination_buckets as _, bucket {
+		(bucket.change.after.arn else null) is arn and
+			resource_region_allowed(bucket) and
+			((bucket.change.after.bucket_region else null) is null or
+				bucket.change.after.bucket_region in approved_regions)
+	}
+}
+
+replication_rule_allowed = func(replication_rule) {
+	destinations = replication_rule.destination else null
+	if destinations is null or length(destinations) is 0 {
+		return false
+	}
+	return all destinations as destination {
+		s3_destination_allowed(destination.bucket else null)
+	}
+}
+
+s3_replication_allowed = func(resource) {
+	if not resource_region_allowed(resource) {
+		return false
+	}
+	rules = resource.change.after.rule else null
+	if rules is null or length(rules) is 0 {
+		return false
+	}
+	return all rules as replication_rule {
+		replication_rule_allowed(replication_rule)
+	}
+}
+
+snapshot_copy_allowed = func(resource) {
+	source_region = resource.change.after.source_region else null
+	snapshot = resource.change.after.source_snapshot_id else null
+	if source_region not in approved_regions or snapshot is null {
+		return false
+	}
+	if strings.has_prefix(snapshot, "arn:") {
+		parts = strings.split(snapshot, ":")
+		if length(parts) < 6 or parts[3] is not source_region {
+			return false
+		}
+	}
+	return resource_region_allowed(resource)
+}
+
+s3_replication = filter changes as _, resource {
+	resource.type is "aws_s3_bucket_replication_configuration"
+}
+
+snapshot_copies = filter changes as _, resource {
+	resource.type is "aws_ebs_snapshot_copy"
+}
+
+s3_destinations_allowed = rule {
+	all s3_replication as _, resource {
+		s3_replication_allowed(resource)
+	}
+}
+
+snapshot_regions_allowed = rule {
+	all snapshot_copies as _, resource {
+		snapshot_copy_allowed(resource)
+	}
+}
+
+modern_s3_configuration_required = rule {
+	all destination_buckets as _, bucket {
+		length(bucket.change.after.replication_configuration else []) is 0
+	}
+}
+
+main = rule {
+	s3_destinations_allowed and snapshot_regions_allowed and
+	modern_s3_configuration_required
+}

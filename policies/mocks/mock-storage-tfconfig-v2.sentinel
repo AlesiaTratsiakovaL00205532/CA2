@@ -1,0 +1,28 @@
+providers = {
+	"aws": {
+		"full_name":      "registry.terraform.io/hashicorp/aws",
+		"module_address": "",
+		"config": {
+			"region": {
+				"references": ["var.region"],
+			},
+		},
+	},
+}
+
+resources = {
+	"aws_instance.ubuntu": {
+		"mode":                "managed",
+		"type":                "aws_instance",
+		"provider_config_key": "aws",
+		"module_address":      "",
+		"config":              {},
+	},
+	"aws_s3_bucket.data": {
+		"mode":                "managed",
+		"type":                "aws_s3_bucket",
+		"provider_config_key": "aws",
+		"module_address":      "",
+		"config":              {},
+	},
+}
