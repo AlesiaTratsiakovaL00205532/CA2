@@ -1,0 +1,44 @@
+providers = {
+	"aws": {
+		"full_name":      "registry.terraform.io/hashicorp/aws",
+		"module_address": "",
+		"config":         {"region": {"references": ["var.region"]}},
+	},
+	"aws.remote": {
+		"full_name":      "registry.terraform.io/hashicorp/aws",
+		"module_address": "",
+		"config":         {"region": {"constant_value": "us-west-1"}},
+	},
+}
+
+resources = {
+	"aws_s3_bucket.source": {
+		"module_address":      "",
+		"provider_config_key": "aws",
+		"config":              {},
+	},
+	"aws_s3_bucket.destination": {
+		"module_address":      "",
+		"provider_config_key": "aws",
+		"config":              {},
+	},
+	"aws_s3_bucket.remote": {
+		"module_address":      "",
+		"provider_config_key": "aws.remote",
+		"config":              {},
+	},
+	"aws_s3_bucket_replication_configuration.copy": {
+		"module_address":      "",
+		"provider_config_key": "aws",
+		"config":              {},
+	},
+	"aws_ebs_snapshot_copy.copy": {
+		"module_address":      "",
+		"provider_config_key": "aws",
+		"config":              {},
+	},
+}
+
+strip_index = func(address) {
+	return address
+}

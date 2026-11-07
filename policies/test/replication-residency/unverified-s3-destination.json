@@ -1,0 +1,105 @@
+{
+  "mock": {
+    "tfconfig/v2": {
+      "module": {
+        "source": "..\\..\\mocks\\mock-replication-tfconfig-v2.sentinel"
+      }
+    },
+    "tfplan/v2": {
+      "data": {
+        "variables": {
+          "region": {
+            "value": "us-east-1"
+          }
+        },
+        "resource_changes": {
+          "aws_s3_bucket.source": {
+            "change": {
+              "after": {
+                "arn": "arn:aws:s3:::assignment-source"
+              },
+              "after_unknown": {},
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_s3_bucket.source",
+            "mode": "managed",
+            "type": "aws_s3_bucket",
+            "name": "source",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          },
+          "aws_s3_bucket_replication_configuration.copy": {
+            "change": {
+              "after": {
+                "rule": [
+                  {
+                    "destination": [
+                      {
+                        "bucket": "arn:aws:s3:::unmanaged-external"
+                      }
+                    ],
+                    "status": "Enabled"
+                  }
+                ]
+              },
+              "after_unknown": {},
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_s3_bucket_replication_configuration.copy",
+            "mode": "managed",
+            "type": "aws_s3_bucket_replication_configuration",
+            "name": "copy",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          },
+          "aws_ebs_snapshot_copy.copy": {
+            "change": {
+              "after": {
+                "source_region": "us-east-1",
+                "source_snapshot_id": "snap-example",
+                "encrypted": true
+              },
+              "after_unknown": {},
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_ebs_snapshot_copy.copy",
+            "mode": "managed",
+            "type": "aws_ebs_snapshot_copy",
+            "name": "copy",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          },
+          "aws_s3_bucket.destination": {
+            "change": {
+              "after": {
+                "bucket_region": "us-east-1",
+                "arn": "arn:aws:s3:::assignment-destination"
+              },
+              "after_unknown": {},
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_s3_bucket.destination",
+            "mode": "managed",
+            "type": "aws_s3_bucket",
+            "name": "destination",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          }
+        }
+      }
+    }
+  },
+  "test": {
+    "rules": {
+      "main": false
+    }
+  }
+}
