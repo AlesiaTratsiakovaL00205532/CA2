@@ -1,0 +1,19 @@
+providers = {
+	"aws": {
+		"full_name":      "registry.terraform.io/hashicorp/aws",
+		"module_address": "",
+		"config": {
+			"region": {
+				"references": ["var.region"],
+			},
+		},
+	},
+}
+
+resources = {
+	"aws_instance.ubuntu": {
+		"provider_config_key": "aws",
+		"module_address":      "",
+		"config":              {},
+	},
+}
