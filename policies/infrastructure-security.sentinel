@@ -1,0 +1,213 @@
+import "tfconfig/v2" as tfconfig
+import "tfplan/v2" as tfplan
+
+approved_instance_types = ["t2.micro", "t3.micro"]
+
+changes = filter tfplan.resource_changes as _, resource {
+	resource.mode is "managed" and
+		resource.provider_name is "registry.terraform.io/hashicorp/aws" and
+		resource.change.actions is not ["delete"]
+}
+
+instances = filter changes as _, resource {
+	resource.type is "aws_instance"
+}
+
+security_groups = filter changes as _, resource {
+	resource.type is "aws_security_group"
+}
+
+group_reference_allowed = func(reference, group, module_address) {
+	qualified = reference
+	if module_address is not "" {
+		qualified = module_address + "." + reference
+	}
+	qualified = tfconfig.strip_index(qualified)
+	address = tfconfig.strip_index(group.address)
+	return qualified is address or qualified is (address + ".id")
+}
+
+groups_declared = func(config) {
+	references = config.config.vpc_security_group_ids.references else []
+	if length(references) is 0 {
+		return false
+	}
+	return all references as reference {
+		any security_groups as _, group {
+			group_reference_allowed(reference, group, config.module_address else "")
+		}
+	}
+}
+
+instance_allowed = func(resource) {
+	values = resource.change.after
+	roots = values.root_block_device else null
+	metadata = values.metadata_options else null
+	devices = values.ebs_block_device else []
+	if roots is null or length(roots) is 0 or
+		metadata is null or
+		length(metadata) is not 1 or
+		devices is null {
+		return false
+	}
+
+	config = tfconfig.resources[tfconfig.strip_index(resource.address)] else null
+	if config is null or not groups_declared(config) {
+		return false
+	}
+
+	return (values.instance_type else null) in approved_instance_types and
+		(values.associate_public_ip_address else null) is false and
+		length(values.ipv6_addresses else []) is 0 and
+		(values.ipv6_address_count else null) is 0 and
+		length(values.network_interface else []) is 0 and
+		length(values.primary_network_interface else []) is 0 and
+		length(values.secondary_network_interface else []) is 0 and
+		length(values.launch_template else []) is 0 and
+		(metadata[0].http_tokens else null) is "required" and
+		all roots as device {
+			(device.encrypted else null) is true
+		} and
+		all devices as device {
+			(device.encrypted else null) is true
+		}
+}
+
+encrypted_storage = filter changes as _, resource {
+	resource.type in ["aws_ebs_volume", "aws_ebs_snapshot_copy"]
+}
+
+private_ingress = func(entry) {
+	if entry is null {
+		return false
+	}
+	cidrs = entry.cidr_blocks else []
+	ipv6 = entry.ipv6_cidr_blocks else []
+	prefixes = entry.prefix_list_ids else []
+	if cidrs is null or ipv6 is null or prefixes is null {
+		return false
+	}
+	return all cidrs as cidr {
+		cidr is not null and cidr is not "0.0.0.0/0"
+	} and
+		all ipv6 as cidr {
+			cidr is not null and cidr is not "::/0"
+		} and
+		(entry.cidr_ipv4 else null) is not "0.0.0.0/0" and
+		(entry.cidr_ipv6 else null) is not "::/0" and
+		length(prefixes) is 0 and
+		(entry.prefix_list_id else null) is null
+}
+
+security_group_rules = filter changes as _, resource {
+	resource.type is "aws_security_group_rule"
+}
+
+ingress_rules = filter changes as _, resource {
+	resource.type is "aws_vpc_security_group_ingress_rule"
+}
+
+ingress_change_allowed = func(resource) {
+	unknown = resource.change.after_unknown else {}
+	if (unknown.cidr_ipv4 else false) is true or
+		(unknown.cidr_ipv6 else false) is true or
+		(unknown.cidr_blocks else false) is true or
+		(unknown.ipv6_cidr_blocks else false) is true or
+		(unknown.prefix_list_id else false) is true {
+		return false
+	}
+	return private_ingress(resource.change.after)
+}
+
+network_acls = filter changes as _, resource {
+	resource.type is "aws_network_acl"
+}
+
+network_acl_rules = filter changes as _, resource {
+	resource.type is "aws_network_acl_rule"
+}
+
+private_acl_rule = func(entry) {
+	action = entry.rule_action else (entry.action else null)
+	if action is "deny" {
+		return true
+	}
+	if action is not "allow" {
+		return false
+	}
+	ipv4 = entry.cidr_block else null
+	ipv6 = entry.ipv6_cidr_block else null
+	return (ipv4 is not null or ipv6 is not null) and
+		ipv4 is not "0.0.0.0/0" and
+		ipv6 is not "::/0"
+}
+
+private_network_resource = func(resource) {
+	values = resource.change.after
+	if resource.type is "aws_subnet" {
+		return (values.map_public_ip_on_launch else null) is false and
+			(values.assign_ipv6_address_on_creation else null) is false
+	}
+	if resource.type in ["aws_lb", "aws_elb"] {
+		return (values.internal else null) is true
+	}
+	return false
+}
+
+network_resources = filter changes as _, resource {
+	resource.type in ["aws_subnet", "aws_lb", "aws_elb",
+		"aws_eip", "aws_eip_association"]
+}
+
+instances_secure = rule {
+	all instances as _, resource {
+		instance_allowed(resource)
+	}
+}
+
+ebs_encrypted = rule {
+	all encrypted_storage as _, resource {
+		(resource.change.after.encrypted else null) is true
+	}
+}
+
+security_groups_private = rule {
+	all security_groups as _, resource {
+		all (resource.change.after.ingress else []) as ingress {
+			private_ingress(ingress)
+		}
+	} and
+	all security_group_rules as _, resource {
+		(resource.change.after.type else null) is "egress" or
+			((resource.change.after.type else null) is "ingress" and
+				ingress_change_allowed(resource))
+	} and
+	all ingress_rules as _, resource {
+		ingress_change_allowed(resource)
+	}
+}
+
+network_acls_private = rule {
+	all network_acls as _, resource {
+		all (resource.change.after.ingress else []) as ingress {
+			private_acl_rule(ingress)
+		}
+	} and
+	all network_acl_rules as _, resource {
+		(resource.change.after.egress else null) is true or
+			((resource.change.after.egress else null) is false and
+				private_acl_rule(resource.change.after))
+	}
+}
+
+network_exposure_restricted = rule {
+	all network_resources as _, resource {
+		private_network_resource(resource)
+	}
+}
+
+main = rule {
+	instances_secure and ebs_encrypted and security_groups_private and
+	network_acls_private and
+	network_exposure_restricted
+}

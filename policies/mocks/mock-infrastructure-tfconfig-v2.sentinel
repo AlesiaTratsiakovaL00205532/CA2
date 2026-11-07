@@ -1,0 +1,16 @@
+resources = {
+	"aws_instance.ubuntu": {
+		"config": {
+			"vpc_security_group_ids": {
+				"references": [
+					"aws_security_group.workload.id",
+					"aws_security_group.workload",
+				],
+			},
+		},
+	},
+}
+
+strip_index = func(address) {
+	return address
+}

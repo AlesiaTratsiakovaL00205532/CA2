@@ -1,0 +1,139 @@
+{
+  "mock": {
+    "tfconfig/v2": {
+      "module": {
+        "source": "..\\..\\mocks\\mock-infrastructure-tfconfig-v2.sentinel"
+      }
+    },
+    "tfplan/v2": {
+      "data": {
+        "resource_changes": {
+          "aws_subnet.workload": {
+            "change": {
+              "after": {
+                "map_public_ip_on_launch": false,
+                "assign_ipv6_address_on_creation": false
+              },
+              "after_unknown": {},
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_subnet.workload",
+            "mode": "managed",
+            "type": "aws_subnet",
+            "name": "workload",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          },
+          "aws_instance.ubuntu": {
+            "change": {
+              "after": {
+                "root_block_device": [
+                  {
+                    "encrypted": true
+                  }
+                ],
+                "metadata_options": [
+                  {
+                    "http_tokens": "required"
+                  }
+                ],
+                "ipv6_address_count": 0,
+                "instance_type": "t2.micro",
+                "ebs_block_device": [
+                  {
+                    "encrypted": true
+                  }
+                ],
+                "ipv6_addresses": [],
+                "associate_public_ip_address": false,
+                "network_interface": []
+              },
+              "after_unknown": {},
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_instance.ubuntu",
+            "mode": "managed",
+            "type": "aws_instance",
+            "name": "ubuntu",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          },
+          "aws_security_group.workload": {
+            "change": {
+              "after": {
+                "ingress": [
+                  {
+                    "protocol": "tcp",
+                    "to_port": 22,
+                    "prefix_list_ids": [],
+                    "cidr_blocks": [
+                      "10.20.0.0/16"
+                    ],
+                    "from_port": 22,
+                    "ipv6_cidr_blocks": []
+                  }
+                ]
+              },
+              "after_unknown": {},
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_security_group.workload",
+            "mode": "managed",
+            "type": "aws_security_group",
+            "name": "workload",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          },
+          "aws_ebs_volume.data": {
+            "change": {
+              "after": {
+                "encrypted": true
+              },
+              "after_unknown": {},
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_ebs_volume.data",
+            "mode": "managed",
+            "type": "aws_ebs_volume",
+            "name": "data",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          },
+          "aws_vpc_security_group_ingress_rule.ssh": {
+            "change": {
+              "after": {
+                "ip_protocol": "tcp",
+                "cidr_ipv4": null
+              },
+              "after_unknown": {
+                "cidr_ipv4": true
+              },
+              "actions": [
+                "create"
+              ]
+            },
+            "address": "aws_vpc_security_group_ingress_rule.ssh",
+            "mode": "managed",
+            "type": "aws_vpc_security_group_ingress_rule",
+            "name": "ssh",
+            "module_address": "",
+            "provider_name": "registry.terraform.io/hashicorp/aws"
+          }
+        }
+      }
+    }
+  },
+  "test": {
+    "rules": {
+      "main": false
+    }
+  }
+}
