@@ -12,3 +12,8 @@ policy "replication-residency" {
   source            = "./replication-residency.sentinel"
   enforcement_level = "hard-mandatory"
 }
+
+policy "infrastructure-security" {
+  source            = "./infrastructure-security.sentinel"
+  enforcement_level = "hard-mandatory"
+}
