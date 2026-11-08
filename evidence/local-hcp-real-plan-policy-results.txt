@@ -1,0 +1,23 @@
+Local evaluation of downloaded HCP Sentinel mocks
+Date: 2026-11-08
+Source run: run-S1DQ5gpcnRNCi52w
+Sentinel CLI: 0.41.0
+
+Configuration: real-plan.hcl, importing only tfconfig/v2 and tfplan/v2
+Command for each policy:
+sentinel apply -config real-plan.hcl <policy-file>
+
+Captured CLI results:
+Pass - approved-regions.sentinel
+Pass - storage-residency.sentinel
+Pass - replication-residency.sentinel
+Pass - infrastructure-security.sentinel
+Pass - supply-chain-security.sentinel
+
+All five commands exited with code 0. No infrastructure was applied.
+Raw mocks are retained outside the repository and are not included here.
+Credential-related markers were detected in the unused tfrun mock;
+the archive must not be published without further review.
+These results demonstrate evaluation, not HCP blocking enforcement.
+The plan contains no modules or replication resources, so those cases
+remain covered by the separate synthetic tests rather than this plan.
