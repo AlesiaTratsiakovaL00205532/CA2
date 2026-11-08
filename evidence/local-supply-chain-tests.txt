@@ -1,0 +1,112 @@
+PASS - supply-chain-security.sentinel
+  PASS - test\supply-chain-security\missing-module-version.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          false
+
+      supply-chain-security.sentinel:35:1 - Rule "modules_trusted_and_pinned"
+        Value:
+          false
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          true
+  PASS - test\supply-chain-security\missing-provider-version.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          false
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          false
+  PASS - test\supply-chain-security\no-modules.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          true
+
+      supply-chain-security.sentinel:35:1 - Rule "modules_trusted_and_pinned"
+        Value:
+          true
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          true
+  PASS - test\supply-chain-security\trusted-pinned-dependencies.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          true
+
+      supply-chain-security.sentinel:35:1 - Rule "modules_trusted_and_pinned"
+        Value:
+          true
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          true
+  PASS - test\supply-chain-security\unapproved-provider-version.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          false
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          false
+  PASS - test\supply-chain-security\unpinned-module.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          false
+
+      supply-chain-security.sentinel:35:1 - Rule "modules_trusted_and_pinned"
+        Value:
+          false
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          true
+  PASS - test\supply-chain-security\unpinned-provider.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          false
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          false
+  PASS - test\supply-chain-security\untrusted-module.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          false
+
+      supply-chain-security.sentinel:35:1 - Rule "modules_trusted_and_pinned"
+        Value:
+          false
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          true
+  PASS - test\supply-chain-security\untrusted-provider.json
+
+    trace:
+      supply-chain-security.sentinel:41:1 - Rule "main"
+        Value:
+          false
+
+      supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+        Value:
+          false
+1 tests completed in 83.9009ms

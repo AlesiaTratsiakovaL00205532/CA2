@@ -1,0 +1,19 @@
+{
+  "mock": {
+    "tfconfig/v2": {
+      "data": {
+        "providers": {
+          "aws": {
+            "full_name": "registry.terraform.io/hashicorp/aws"
+          }
+        },
+        "module_calls": {}
+      }
+    }
+  },
+  "test": {
+    "rules": {
+      "main": false
+    }
+  }
+}

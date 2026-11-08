@@ -1,0 +1,43 @@
+import "tfconfig/v2" as tfconfig
+import "strings"
+
+approved_providers = {
+	"registry.terraform.io/hashicorp/aws":    "6.72.0",
+	"registry.terraform.io/hashicorp/random": "3.0.1",
+}
+approved_module_sources = ["terraform-aws-modules/vpc/aws"]
+
+provider_allowed = func(provider) {
+	source = provider.full_name else null
+	if source not in keys(approved_providers) {
+		return false
+	}
+	constraint = strings.trim_space(provider.version_constraint else "")
+	return constraint is approved_providers[source] or
+		constraint is ("= " + approved_providers[source]) or
+		constraint is ("=" + approved_providers[source])
+}
+
+module_allowed = func(module_call) {
+	source = module_call.source else null
+	constraint = strings.trim_space(module_call.version_constraint else "")
+	return source in approved_module_sources and
+		constraint matches "^=?\\s*[0-9]+\\.[0-9]+\\.[0-9]+$"
+}
+
+providers_trusted_and_pinned = rule {
+	length(tfconfig.providers) > 0 and
+	all tfconfig.providers as _, provider {
+		provider_allowed(provider)
+	}
+}
+
+modules_trusted_and_pinned = rule {
+	all tfconfig.module_calls as _, module_call {
+		module_allowed(module_call)
+	}
+}
+
+main = rule {
+	providers_trusted_and_pinned and modules_trusted_and_pinned
+}
