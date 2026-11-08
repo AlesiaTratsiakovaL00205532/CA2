@@ -1,0 +1,26 @@
+================ Results for policy set: <empty policy set name> ===============
+
+Sentinel Result: true
+
+This result means that all Sentinel policies passed and the protected
+behavior is allowed.
+
+1 policies evaluated.
+
+## Policy 1: approved-regions (hard-mandatory)
+
+Result: true
+
+./approved-regions.sentinel:53:1 - Rule "main"
+  Value:
+    true
+
+./approved-regions.sentinel:32:1 - Rule "providers_allowed"
+  Value:
+    true
+
+./approved-regions.sentinel:46:1 - Rule "resource_regions_allowed"
+  Value:
+    true
+
+

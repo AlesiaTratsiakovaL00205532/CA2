@@ -1,0 +1,25 @@
+================ Results for policy set: <empty policy set name> ===============
+
+Sentinel Result: false
+
+This result means that one or more Sentinel policies failed. More than likely,
+this was due to the discovery of violations by the main rule and other
+sub-rules. Please see the details of the policies executed below to find the
+violation(s), which is usually indicated by a rule with a false boolean value,
+or non-zero collection data.
+
+1 policies evaluated.
+
+## Policy 1: approved-regions (hard-mandatory)
+
+Result: false
+
+./approved-regions.sentinel:53:1 - Rule "main"
+  Value:
+    false
+
+./approved-regions.sentinel:32:1 - Rule "providers_allowed"
+  Value:
+    false
+
+

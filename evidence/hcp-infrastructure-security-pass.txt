@@ -1,0 +1,38 @@
+================ Results for policy set: <empty policy set name> ===============
+
+Sentinel Result: true
+
+This result means that all Sentinel policies passed and the protected
+behavior is allowed.
+
+1 policies evaluated.
+
+## Policy 1: infra-security (hard-mandatory)
+
+Result: true
+
+./infra-security.sentinel:209:1 - Rule "main"
+  Value:
+    true
+
+./infra-security.sentinel:168:1 - Rule "ebs_encrypted"
+  Value:
+    true
+
+./infra-security.sentinel:162:1 - Rule "instances_secure"
+  Value:
+    true
+
+./infra-security.sentinel:190:1 - Rule "network_acls_private"
+  Value:
+    true
+
+./infra-security.sentinel:203:1 - Rule "network_exposure_restricted"
+  Value:
+    true
+
+./infra-security.sentinel:174:1 - Rule "security_groups_private"
+  Value:
+    true
+
+

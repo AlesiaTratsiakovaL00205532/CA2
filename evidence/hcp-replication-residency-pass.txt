@@ -1,0 +1,30 @@
+================ Results for policy set: <empty policy set name> ===============
+
+Sentinel Result: true
+
+This result means that all Sentinel policies passed and the protected
+behavior is allowed.
+
+1 policies evaluated.
+
+## Policy 1: replication-residency (hard-mandatory)
+
+Result: true
+
+./replication-residency.sentinel:129:1 - Rule "main"
+  Value:
+    true
+
+./replication-residency.sentinel:123:1 - Rule "modern_s3_configuration_required"
+  Value:
+    true
+
+./replication-residency.sentinel:111:1 - Rule "s3_destinations_allowed"
+  Value:
+    true
+
+./replication-residency.sentinel:117:1 - Rule "snapshot_regions_allowed"
+  Value:
+    true
+
+
