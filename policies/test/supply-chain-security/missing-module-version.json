@@ -1,0 +1,24 @@
+{
+  "mock": {
+    "tfconfig/v2": {
+      "data": {
+        "providers": {
+          "aws": {
+            "full_name": "registry.terraform.io/hashicorp/aws",
+            "version_constraint": "= 6.72.0"
+          }
+        },
+        "module_calls": {
+          "vpc": {
+            "source": "terraform-aws-modules/vpc/aws"
+          }
+        }
+      }
+    }
+  },
+  "test": {
+    "rules": {
+      "main": false
+    }
+  }
+}
