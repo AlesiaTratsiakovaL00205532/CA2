@@ -1,0 +1,30 @@
+Saved local Terraform plan verification
+Date: 2026-11-08
+Terraform version: 1.16.6
+Command: terraform plan -input=false -out=tfplan
+Verified using: terraform show -json tfplan
+
+Configuration copied from terraform/ with only the remote backend omitted.
+AWS region: us-east-1 (sandbox exception, not Irish residency)
+Instance type: t2.micro
+
+Planned resource changes:
+aws_instance.ubuntu: create
+aws_security_group.workload: create
+aws_subnet.workload: create
+aws_vpc.workload: create
+Plan: 4 to add, 0 to change, 0 to destroy.
+
+EC2 root EBS encrypted: true
+IMDS HTTP tokens: required
+Associate public IPv4 address: false
+
+Binary plan SHA256:
+BC557A8D0FE899DDC24C4EFDE38A122666FD047C7A1B804A0FD8FEAD6E366A72
+
+The binary tfplan and readable tfplan.txt are retained outside the repository
+in the isolated local working directory. This file is a verification summary,
+not the binary plan or full CLI log.
+No common credential markers were detected in the JSON or readable plan;
+this limited screening is not a guarantee that every value is safe to publish.
+Local planning does not automatically run HCP Sentinel checks.
