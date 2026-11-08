@@ -1,0 +1,90 @@
+================ Results for policy set: <empty policy set name> ===============
+
+Sentinel Result: true
+
+This result means that all Sentinel policies passed and the protected
+behavior is allowed.
+
+5 policies evaluated.
+
+## Policy 1: infrastructure-security (advisory)
+
+Result: false
+
+./infrastructure-security.sentinel:209:1 - Rule "main"
+  Value:
+    false
+
+./infrastructure-security.sentinel:162:1 - Rule "instances_secure"
+  Value:
+    false
+
+## Policy 2: approved-regions (advisory)
+
+Result: true
+
+./approved-regions.sentinel:53:1 - Rule "main"
+  Value:
+    true
+
+./approved-regions.sentinel:32:1 - Rule "providers_allowed"
+  Value:
+    true
+
+./approved-regions.sentinel:46:1 - Rule "resource_regions_allowed"
+  Value:
+    true
+
+## Policy 3: replication-residency (advisory)
+
+Result: true
+
+./replication-residency.sentinel:129:1 - Rule "main"
+  Value:
+    true
+
+./replication-residency.sentinel:123:1 - Rule "modern_s3_configuration_required"
+  Value:
+    true
+
+./replication-residency.sentinel:111:1 - Rule "s3_destinations_allowed"
+  Value:
+    true
+
+./replication-residency.sentinel:117:1 - Rule "snapshot_regions_allowed"
+  Value:
+    true
+
+## Policy 4: storage-residency (advisory)
+
+Result: true
+
+./storage-residency.sentinel:97:1 - Rule "main"
+  Value:
+    true
+
+./storage-residency.sentinel:91:1 - Rule "planned_storage_locations_allowed"
+  Value:
+    true
+
+./storage-residency.sentinel:69:1 - Rule "storage_locations_allowed"
+  Value:
+    true
+
+## Policy 5: supply-chain-security (advisory)
+
+Result: true
+
+./supply-chain-security.sentinel:41:1 - Rule "main"
+  Value:
+    true
+
+./supply-chain-security.sentinel:35:1 - Rule "modules_trusted_and_pinned"
+  Value:
+    true
+
+./supply-chain-security.sentinel:28:1 - Rule "providers_trusted_and_pinned"
+  Value:
+    true
+
+
