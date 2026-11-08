@@ -1,0 +1,11 @@
+Terraform v1.17.1
+on linux_amd64
+
+Initializing plugins and modules...
+{"@level":"info","@message":"Terraform 1.17.1","@module":"terraform.ui","@timestamp":"2026-11-07T14:35:40.482482Z","terraform":"1.17.1","type":"version","ui":"1.3"}
+{"@level":"info","@message":"data.aws_ami.ubuntu: Refreshing...","@module":"terraform.ui","@timestamp":"2026-11-07T14:35:51.558989Z","hook":{"resource":{"addr":"data.aws_ami.ubuntu","module":"","resource":"data.aws_ami.ubuntu","implied_provider":"aws","resource_type":"aws_ami","resource_name":"ubuntu","resource_key":null},"action":"read"},"type":"apply_start"}
+{"@level":"info","@message":"data.aws_ami.ubuntu: Refresh complete after 0s [id=ami-0fb0b230890ccd1e6]","@module":"terraform.ui","@timestamp":"2026-11-07T14:35:51.776424Z","hook":{"resource":{"addr":"data.aws_ami.ubuntu","module":"","resource":"data.aws_ami.ubuntu","implied_provider":"aws","resource_type":"aws_ami","resource_name":"ubuntu","resource_key":null},"action":"read","id_key":"id","id_value":"ami-0fb0b230890ccd1e6","elapsed_seconds":0},"type":"apply_complete"}
+{"@level":"info","@message":"aws_instance.ubuntu: Plan to create","@module":"terraform.ui","@timestamp":"2026-11-07T14:35:51.854538Z","change":{"resource":{"addr":"aws_instance.ubuntu","module":"","resource":"aws_instance.ubuntu","implied_provider":"aws","resource_type":"aws_instance","resource_name":"ubuntu","resource_key":null},"action":"create"},"type":"planned_change"}
+{"@level":"info","@message":"Plan: 1 to add, 0 to change, 0 to destroy.","@module":"terraform.ui","@timestamp":"2026-11-07T14:35:51.854632Z","changes":{"add":1,"change":0,"import":0,"remove":0,"action_invocation":0,"action_fail":0,"operation":"plan"},"type":"change_summary"}
+{"@level":"info","@message":"Outputs: 2","@module":"terraform.ui","@timestamp":"2026-11-07T14:35:51.854707Z","outputs":{"instance_ami":{"sensitive":false,"action":"create"},"instance_arn":{"sensitive":false,"action":"create"}},"type":"outputs"}
+

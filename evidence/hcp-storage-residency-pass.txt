@@ -1,0 +1,26 @@
+================ Results for policy set: <empty policy set name> ===============
+
+Sentinel Result: true
+
+This result means that all Sentinel policies passed and the protected
+behavior is allowed.
+
+1 policies evaluated.
+
+## Policy 1: storage-residency (hard-mandatory)
+
+Result: true
+
+./storage-residency.sentinel:97:1 - Rule "main"
+  Value:
+    true
+
+./storage-residency.sentinel:91:1 - Rule "planned_storage_locations_allowed"
+  Value:
+    true
+
+./storage-residency.sentinel:69:1 - Rule "storage_locations_allowed"
+  Value:
+    true
+
+
